@@ -1,0 +1,8 @@
+*.bak
+*.sw?
+*._*
+*~
+.#*
+*.lock
+tags
+TAGS
