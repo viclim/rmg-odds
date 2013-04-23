@@ -1,15 +1,38 @@
 package OddsConverter;
 
-=head1 NAME
+use autodie;
+use Moose;
 
-OddsConverter
+has 'probability', is => 'rw', isa => 'Num';
+has 'stake', is => 'ro', isa => 'Int', default => 1;
 
-=head1 SYNOPSIS
+# method
 
-    my $oc = OddsConverter->new(probability => 0.5);
-    print $oc->decimal_odds;    # '2.00' (always to 2 decimal places)
-    print $oc->roi;             # '100%' (always whole numbers or 'Inf.')
+__PACKAGE__->meta->make_immutable;
 
-=cut
+sub BUILD
+{
+    super();
+
+    my $self = shift;
+    if ($self->probability < 0 || $self->probability > 1) {
+	$self->probability = 0;
+    }
+    
+}
+
+sub decimal_odds
+{
+    my $self = shift;
+    return ($self->probability eq 0) ? 
+	"Inf." : sprintf("%.2f", $self->stake / $self->probability);
+}
+
+sub roi
+{
+    my $self = shift;
+    return ($self->decimal_odds eq "Inf.") ? 
+	"Inf." : sprintf("%.0f%%", ($self->decimal_odds - $self->stake) * 100);
+}
 
 1;
